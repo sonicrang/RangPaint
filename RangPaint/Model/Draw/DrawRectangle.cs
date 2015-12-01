@@ -69,6 +69,7 @@ namespace RangPaint.Model
                 {
                     var stroke = drawRectangle.Clone();
                     inkCanvas.Strokes.Add(stroke);
+                    inkCanvas.Select(new StrokeCollection() { stroke });
                 }
             }
         }

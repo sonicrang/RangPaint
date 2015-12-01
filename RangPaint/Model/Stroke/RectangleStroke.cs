@@ -8,6 +8,7 @@ using System.Windows;
 
 namespace RangPaint.Model
 {
+    [Serializable]
     public class RectangleStroke : StrokeBase
     {
         public RectangleStroke(StylusPointCollection pts, DrawingAttributes da)

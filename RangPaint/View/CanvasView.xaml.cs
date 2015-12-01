@@ -25,6 +25,5 @@ namespace RangPaint.View
             InitializeComponent();
         }
 
-
     }
 }

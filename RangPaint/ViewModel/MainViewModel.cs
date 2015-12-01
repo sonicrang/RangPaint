@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Markup;
 
@@ -17,12 +19,15 @@ namespace RangPaint.ViewModel
 
         #region Member
 
-        public InkCanvas inkCanvas { get; set; }
+        public InkCanvas inkCanvas { get; set; }     //InkCanvas
 
-        public DrawStrokeBase curDraw { get; set; }
+        public DrawStrokeBase curDraw { get; set; }  //current draw stroke
 
-        private string mouseLocationText;
+        private List<Stroke> lstStrokeClipBoard;     //clipboard of strokes
 
+        private Point? selectionStartPoint = null;   //rectangle_select start point
+
+        private string mouseLocationText;            //show mouse location
         public string MouseLocationText
         {
             get { return mouseLocationText; }
@@ -41,32 +46,44 @@ namespace RangPaint.ViewModel
         public MainViewModel(InkCanvas _inkCanvas)
         {
             inkCanvas = _inkCanvas;
+            lstStrokeClipBoard = new List<Stroke>();
         }
 
         #region Clipboard
 
         public void Cut()
         {
-          
+            var lstStokes = inkCanvas.GetSelectedStrokes();
+            if (lstStokes.Count > 0)
+            {
+                lstStrokeClipBoard.Clear();
+            }
+            foreach (var s in lstStokes)
+            {
+                lstStrokeClipBoard.Add(s);
+                inkCanvas.Strokes.Remove(s);
+            }
         }
 
         public void Copy()
         {
             var lstStokes = inkCanvas.GetSelectedStrokes();
-            Clipboard.Clear();
+            if (lstStokes.Count > 0)
+            {
+                lstStrokeClipBoard.Clear();
+            }
             foreach (var s in lstStokes)
             {
-                string xmlString = XamlWriter.Save(s);
-                DataObject rectangleData = new DataObject(DataFormats.Xaml, xmlString);
-                Clipboard.SetDataObject(rectangleData);
+                lstStrokeClipBoard.Add(s);
             }
         }
 
-        public void Paste(object sender, MouseButtonEventArgs e)
+
+        public void Paste()
         {
-            if (inkCanvas.CanPaste())
+            foreach (var s in lstStrokeClipBoard)
             {
-                inkCanvas.Paste(e.GetPosition(inkCanvas));
+                inkCanvas.Strokes.Add(s.Clone());
             }
         }
 
@@ -74,16 +91,22 @@ namespace RangPaint.ViewModel
 
         #region Image
 
+        /// <summary>
+        /// free select mode
+        /// </summary>
         public void SelectMode()
         {
             ExitShapeMode();
             inkCanvas.EditingMode = InkCanvasEditingMode.Select;
         }
 
+        /// <summary>
+        /// rectangle seletc mode
+        /// </summary>
         public void RecSelectMode()
         {
             ExitShapeMode();
-            inkCanvas.EditingMode = InkCanvasEditingMode.Select;
+            inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
 
         #endregion
@@ -103,14 +126,7 @@ namespace RangPaint.ViewModel
 
         public void BrushMode()
         {
-            inkCanvas.EditingMode = InkCanvasEditingMode.None;
             curDraw = new DrawBrush();
-        }
-
-        public void EraseByPointMode()
-        {
-            ExitShapeMode();
-            inkCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
         }
 
         public void EraseByStrokeMode()
@@ -124,24 +140,21 @@ namespace RangPaint.ViewModel
         #region Shape
         public void DrawLine()
         {
-            inkCanvas.EditingMode = InkCanvasEditingMode.None;
             curDraw = new DrawLine();
         }
 
         public void DrawEllipse()
         {
-            inkCanvas.EditingMode = InkCanvasEditingMode.None;
             curDraw = new DrawEllipse(false, null);
         }
         public void DrawRectangle()
         {
-            inkCanvas.EditingMode = InkCanvasEditingMode.None;
             curDraw = new DrawRectangle(false, null);
         }
 
         public void DrawTriangle()
         {
-            inkCanvas.EditingMode = InkCanvasEditingMode.None;
+
             curDraw = new DrawRectangle(false, null);
         }
 
@@ -153,7 +166,7 @@ namespace RangPaint.ViewModel
         }
 
 
-        public void CanvasPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        public void CanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (curDraw != null)
             {
@@ -174,10 +187,13 @@ namespace RangPaint.ViewModel
                 MouseLocationText = "";
             }
 
-            if (e.LeftButton == MouseButtonState.Pressed && curDraw != null)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                inkCanvas.EditingMode = InkCanvasEditingMode.None;
-                curDraw.OnMouseMove(inkCanvas, e);
+                if (curDraw != null && inkCanvas.GetSelectedStrokes().Count == 0)
+                {
+                    inkCanvas.EditingMode = InkCanvasEditingMode.None;
+                    curDraw.OnMouseMove(inkCanvas, e);
+                }
             }
         }
 

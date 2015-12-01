@@ -25,7 +25,7 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <StackPanel>
-                                        <Image Width="30" Source="/MsPaint;component/Images/paste.png" />
+                                        <Image Width="30" Source="/RangPaint;component/Images/paste.png" />
                                         <TextBlock Text="粘贴" HorizontalAlignment="Center" Margin="0,8"/>
                                     </StackPanel>
                                 </Button>
@@ -37,7 +37,7 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Width="18" Source="/MsPaint;component/Images/cut.png" />
+                                            <Image Width="18" Source="/RangPaint;component/Images/cut.png" />
                                             <TextBlock Text="剪切" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0"/>
                                         </StackPanel>
                                     </Button>
@@ -48,7 +48,7 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Width="18" Source="/MsPaint;component/Images/copy.png" />
+                                            <Image Width="18" Source="/RangPaint;component/Images/copy.png" />
                                             <TextBlock Text="复制" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="3,0"/>
                                         </StackPanel>
                                     </Button>
@@ -71,7 +71,7 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <StackPanel>
-                                        <Image Width="30" Source="/MsPaint;component/Images/select.png" />
+                                        <Image Width="30" Source="/RangPaint;component/Images/select.png" />
                                         <TextBlock Text="选择" HorizontalAlignment="Center" Margin="0,8"/>
                                     </StackPanel>
                                 </Button>
@@ -83,7 +83,7 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Width="18" Source="/MsPaint;component/Images/select_free.png" />
+                                            <Image Width="18" Source="/RangPaint;component/Images/select_free.png" />
                                             <TextBlock Text="自由图形选择" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0"/>
                                         </StackPanel>
                                     </Button>
@@ -94,7 +94,7 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <StackPanel Orientation="Horizontal" >
-                                            <Image Width="18" Source="/MsPaint;component/Images/resize.png" />
+                                            <Image Width="18" Source="/RangPaint;component/Images/resize.png" />
                                             <TextBlock Text="重新调整大小" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0"/>
                                         </StackPanel>
                                     </Button>
@@ -105,7 +105,7 @@
                                             </i:EventTrigger>
                                         </i:Interaction.Triggers>
                                         <StackPanel Orientation="Horizontal">
-                                            <Image Width="18" Source="/MsPaint;component/Images/rotation.png" />
+                                            <Image Width="18" Source="/RangPaint;component/Images/rotation.png" />
                                             <TextBlock Text="旋转" HorizontalAlignment="Left"  VerticalAlignment="Center" Margin="3,0"/>
                                         </StackPanel>
                                     </Button>
@@ -127,24 +127,7 @@
                                             <ei:CallMethodAction MethodName="PenMode" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/pen.png" />
-                                </Button>
-                              
-                                <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Click">
-                                            <ei:CallMethodAction MethodName="EraseByPointMode" TargetObject="{Binding}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                    <Image Source="/MsPaint;component/Images/eraser.png" />
-                                </Button>
-                                <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Click">
-                                            <ei:CallMethodAction MethodName="EraseByStrokeMode" TargetObject="{Binding}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                    <Image Source="/MsPaint;component/Images/eraser2.png" />
+                                    <Image  Source="/RangPaint;component/Images/pen.png" />
                                 </Button>
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
@@ -152,15 +135,7 @@
                                             <ei:CallMethodAction MethodName="BrushMode" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/brush.png" />
-                                </Button>
-                                <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Click">
-                                            <ei:CallMethodAction MethodName="TextMode" TargetObject="{Binding}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/A.png" />
+                                    <Image  Source="/RangPaint;component/Images/brush.png" />
                                 </Button>
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
@@ -168,7 +143,24 @@
                                             <ei:CallMethodAction MethodName="EraseByStrokeMode" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/color_picker.png" />
+                                    <Image Source="/RangPaint;component/Images/eraser.png" />
+                                </Button>
+                               
+                                <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ei:CallMethodAction MethodName="TextMode" TargetObject="{Binding}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image  Source="/RangPaint;component/Images/A.png" />
+                                </Button>
+                                <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ei:CallMethodAction MethodName="EraseByStrokeMode" TargetObject="{Binding}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image  Source="/RangPaint;component/Images/color_picker.png" />
                                 </Button>
                             </WrapPanel>
                             <TextBlock Grid.Row="1" Text="工具" Foreground="Gray" HorizontalAlignment="Center"/>
@@ -187,7 +179,7 @@
                                             <ei:CallMethodAction MethodName="DrawLine" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/line.png" />
+                                    <Image  Source="/RangPaint;component/Images/line.png" />
                                 </Button>
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
@@ -195,7 +187,7 @@
                                             <ei:CallMethodAction MethodName="DrawEllipse" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/ellipse.png" />
+                                    <Image  Source="/RangPaint;component/Images/ellipse.png" />
                                 </Button>
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
@@ -203,7 +195,7 @@
                                             <ei:CallMethodAction MethodName="DrawRectangle" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/rectangle.png" />
+                                    <Image  Source="/RangPaint;component/Images/rectangle.png" />
                                 </Button>
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
@@ -211,7 +203,7 @@
                                             <ei:CallMethodAction MethodName="DrawTriangle" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Image  Source="/MsPaint;component/Images/triangle.png" />
+                                    <Image  Source="/RangPaint;component/Images/triangle.png" />
                                 </Button>
                             </WrapPanel>
                             <TextBlock Grid.Row="1" Text="形状" Foreground="Gray" HorizontalAlignment="Center"/>

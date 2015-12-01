@@ -7,12 +7,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RangPaint.View"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800" Background="#FFCBD4E4">
+             d:DesignHeight="600" d:DesignWidth="800" Background="#FFCBD4E4" >
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-        <InkCanvas x:Name="inkCanvas" Margin="5" >
+        <InkCanvas x:Name="inkCanvas" Margin="5">
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                    <ei:CallMethodAction MethodName="CanvasPreviewMouseLeftButtonDown" TargetObject="{Binding}"/>
+                    <ei:CallMethodAction MethodName="CanvasMouseDown" TargetObject="{Binding}"/>
                 </i:EventTrigger>
                 <i:EventTrigger EventName="MouseMove">
                     <ei:CallMethodAction MethodName="CanvasMouseMove" TargetObject="{Binding}"/>

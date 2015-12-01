@@ -15,7 +15,7 @@
             <ColumnDefinition Width="180"/>
         </Grid.ColumnDefinitions>
         <DockPanel>
-            <Image Source="/MsPaint;component/Images/Arrow_Cross.png" Height="13" Margin="5,0" VerticalAlignment="Center"/>
+            <Image Source="/RangPaint;component/Images/Arrow_Cross.png" Height="13" Margin="5,0" VerticalAlignment="Center"/>
             <Rectangle Stroke="LightGray" Width="1" DockPanel.Dock="Right"/>
             <TextBlock Text="{Binding MouseLocationText}" VerticalAlignment="Center"/>
         </DockPanel>

@@ -59,7 +59,7 @@
     </ApplicationDefinition>
     <Compile Include="Model\Draw\DrawArrowLine.cs" />
     <Compile Include="Model\Draw\DrawBrush.cs" />
-    <Compile Include="Model\ModeModel.cs" />
+    <Compile Include="Model\SelectAdorner.cs" />
     <Compile Include="Model\Stroke\ArrowLineStroke.cs" />
     <Compile Include="Model\Stroke\BrushStroke.cs" />
     <Compile Include="Model\Stroke\EllipseStroke.cs" />
