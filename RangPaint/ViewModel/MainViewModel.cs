@@ -28,6 +28,11 @@ namespace RangPaint.ViewModel
         private Point? selectionStartPoint = null;   //rectangle_select start point
 
         private string mouseLocationText;            //show mouse location
+
+        private DoCommandStack doCmdStack;
+
+        private int editingOperationCount;
+
         public string MouseLocationText
         {
             get { return mouseLocationText; }
@@ -46,10 +51,19 @@ namespace RangPaint.ViewModel
         public MainViewModel(InkCanvas _inkCanvas)
         {
             inkCanvas = _inkCanvas;
+            inkCanvas.PreviewMouseLeftButtonDown += CanvasMouseDown;
+            inkCanvas.MouseMove += CanvasMouseMove;
+            inkCanvas.MouseLeave += CanvasMouseLeave;
+            inkCanvas.MouseUp += CanvasMouseUp;
+            inkCanvas.SelectionMoving += Canvas_SelectionMovingOrResizing;
+            inkCanvas.SelectionResizing += Canvas_SelectionMovingOrResizing;
+            inkCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+
+            doCmdStack = new DoCommandStack(_inkCanvas.Strokes);
             lstStrokeClipBoard = new List<Stroke>();
         }
 
-        #region Clipboard
+        #region Command
 
         public void Cut()
         {
@@ -81,10 +95,28 @@ namespace RangPaint.ViewModel
 
         public void Paste()
         {
+            List<Stroke> lstSelectedStrokes = new List<Stroke>();
             foreach (var s in lstStrokeClipBoard)
             {
-                inkCanvas.Strokes.Add(s.Clone());
+                var stroke = s.Clone();
+                lstSelectedStrokes.Add(stroke);
+                inkCanvas.Strokes.Add(stroke);
             }
+
+            inkCanvas.Select(new StrokeCollection(lstSelectedStrokes));
+        }
+
+        public void Undo()
+        {
+            doCmdStack.Undo();
+        }
+
+        /// <summary>
+        /// Redo the last edit.
+        /// </summary> 
+        public void Redo()
+        {
+            doCmdStack.Redo();
         }
 
         #endregion
@@ -158,13 +190,63 @@ namespace RangPaint.ViewModel
             curDraw = new DrawRectangle(false, null);
         }
 
-        #endregion
-
         private void ExitShapeMode()
         {
             curDraw = null;
         }
 
+        #endregion
+
+        #region Event
+        public void KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyStates == Keyboard.GetKeyStates(Key.C) && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Copy();
+            }
+            else if (e.KeyStates == Keyboard.GetKeyStates(Key.X) && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Cut();
+            }
+            else if (e.KeyStates == Keyboard.GetKeyStates(Key.V) && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Paste();
+            }
+            else if (e.KeyStates == Keyboard.GetKeyStates(Key.Y) && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Redo();
+            }
+            else if (e.KeyStates == Keyboard.GetKeyStates(Key.Z) && Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                Undo();
+            }
+        }
+        public void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
+        {
+            StrokeCollection added = new StrokeCollection(e.Added);
+            StrokeCollection removed = new StrokeCollection(e.Removed);
+
+            CommandItem item = new StrokesAddedOrRemovedCI(doCmdStack, inkCanvas.EditingMode, added, removed, editingOperationCount);
+            doCmdStack.Enqueue(item);
+        }
+
+        public void Canvas_SelectionMovingOrResizing(object sender, InkCanvasSelectionEditingEventArgs e)
+        {
+            Rect newRect = e.NewRectangle; Rect oldRect = e.OldRectangle;
+
+            if (newRect.Top < 0d || newRect.Left < 0d)
+            {
+                Rect newRect2 =
+                    new Rect(newRect.Left < 0d ? 0d : newRect.Left,
+                                newRect.Top < 0d ? 0d : newRect.Top,
+                                newRect.Width,
+                                newRect.Height);
+
+                e.NewRectangle = newRect2;
+            }
+            CommandItem item = new SelectionMovedOrResizedCI(doCmdStack, inkCanvas.GetSelectedStrokes(), newRect, oldRect, editingOperationCount);
+            doCmdStack.Enqueue(item);
+        }
 
         public void CanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -173,8 +255,6 @@ namespace RangPaint.ViewModel
                 curDraw.OnMouseDown(inkCanvas, e);
             }
         }
-
-
         public void CanvasMouseMove(object sender, MouseEventArgs e)
         {
             var point = e.GetPosition(inkCanvas);
@@ -196,19 +276,21 @@ namespace RangPaint.ViewModel
                 }
             }
         }
-
         public void CanvasMouseLeave(object sender, MouseEventArgs e)
         {
             MouseLocationText = "";
         }
-
         public void CanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (curDraw != null)
             {
                 curDraw.OnMouseUp(inkCanvas, e);
             }
+
+            editingOperationCount++;
         }
+
+        #endregion
 
         #endregion
 

@@ -29,5 +29,7 @@ namespace RangPaint
 
             this.DataContext = viewModel;
         }
+
+
     }
 }
