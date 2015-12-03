@@ -23,13 +23,15 @@ namespace RangPaint.ViewModel
 
         public DrawStrokeBase curDraw { get; set; }  //current draw stroke
 
-        private List<Stroke> lstStrokeClipBoard;     //clipboard of strokes
+        private StrokeCollection lstStrokeClipBoard;     //clipboard of strokes
 
         private Point? selectionStartPoint = null;   //rectangle_select start point
 
         private string mouseLocationText;            //show mouse location
 
         private DoCommandStack doCmdStack;
+
+        private bool isDraw;
 
         private int editingOperationCount;
 
@@ -57,25 +59,32 @@ namespace RangPaint.ViewModel
             inkCanvas.MouseUp += CanvasMouseUp;
             inkCanvas.SelectionMoving += Canvas_SelectionMovingOrResizing;
             inkCanvas.SelectionResizing += Canvas_SelectionMovingOrResizing;
-            inkCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
 
             doCmdStack = new DoCommandStack(_inkCanvas.Strokes);
-            lstStrokeClipBoard = new List<Stroke>();
+            lstStrokeClipBoard = new StrokeCollection();
         }
 
         #region Command
-
+        public void Delete()
+        {
+            var lstStokes = inkCanvas.GetSelectedStrokes();
+            if (lstStokes.Count > 0)
+            {
+                editingOperationCount++;
+                Strokes_Removed(lstStokes);
+                inkCanvas.Strokes.Remove(lstStokes);
+            }
+        }
         public void Cut()
         {
             var lstStokes = inkCanvas.GetSelectedStrokes();
             if (lstStokes.Count > 0)
             {
+                editingOperationCount++;
                 lstStrokeClipBoard.Clear();
-            }
-            foreach (var s in lstStokes)
-            {
-                lstStrokeClipBoard.Add(s);
-                inkCanvas.Strokes.Remove(s);
+                lstStrokeClipBoard.Add(lstStokes);
+                Strokes_Removed(lstStokes);
+                inkCanvas.Strokes.Remove(lstStokes);
             }
         }
 
@@ -84,26 +93,23 @@ namespace RangPaint.ViewModel
             var lstStokes = inkCanvas.GetSelectedStrokes();
             if (lstStokes.Count > 0)
             {
+                editingOperationCount++;
                 lstStrokeClipBoard.Clear();
-            }
-            foreach (var s in lstStokes)
-            {
-                lstStrokeClipBoard.Add(s);
+                lstStrokeClipBoard.Add(lstStokes);
             }
         }
 
 
         public void Paste()
         {
-            List<Stroke> lstSelectedStrokes = new List<Stroke>();
-            foreach (var s in lstStrokeClipBoard)
+            if(lstStrokeClipBoard.Count >0)
             {
-                var stroke = s.Clone();
-                lstSelectedStrokes.Add(stroke);
-                inkCanvas.Strokes.Add(stroke);
+                editingOperationCount++;
+                var newLstStrokes = lstStrokeClipBoard.Clone();
+                Strokes_Added(newLstStrokes);
+                inkCanvas.Strokes.Add(newLstStrokes);
+                inkCanvas.Select(newLstStrokes);
             }
-
-            inkCanvas.Select(new StrokeCollection(lstSelectedStrokes));
         }
 
         public void Undo()
@@ -121,7 +127,7 @@ namespace RangPaint.ViewModel
 
         #endregion
 
-        #region Image
+        #region Tool
 
         /// <summary>
         /// free select mode
@@ -141,13 +147,9 @@ namespace RangPaint.ViewModel
             inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
 
-        #endregion
-
-        #region Tool
         public void TextMode()
         {
-            ExitShapeMode();
-
+            // curDraw = new DrawPen();
         }
 
         public void PenMode()
@@ -167,9 +169,6 @@ namespace RangPaint.ViewModel
             inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
         }
 
-        #endregion
-
-        #region Shape
         public void DrawLine()
         {
             curDraw = new DrawLine();
@@ -195,7 +194,9 @@ namespace RangPaint.ViewModel
             curDraw = null;
         }
 
+
         #endregion
+
 
         #region Event
         public void KeyDown(object sender, KeyEventArgs e)
@@ -220,13 +221,21 @@ namespace RangPaint.ViewModel
             {
                 Undo();
             }
+            else if (e.KeyStates == Keyboard.GetKeyStates(Key.Delete))
+            {
+                Delete();
+            }
+            e.Handled = true;
         }
-        public void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
+        private void Strokes_Added(StrokeCollection lstAdded)
         {
-            StrokeCollection added = new StrokeCollection(e.Added);
-            StrokeCollection removed = new StrokeCollection(e.Removed);
+            CommandItem item = new StrokesAddedOrRemovedCI(doCmdStack, inkCanvas.EditingMode, lstAdded, new StrokeCollection(), editingOperationCount);
+            doCmdStack.Enqueue(item);
+        }
 
-            CommandItem item = new StrokesAddedOrRemovedCI(doCmdStack, inkCanvas.EditingMode, added, removed, editingOperationCount);
+        private void Strokes_Removed(StrokeCollection lstRemoved)
+        {
+            CommandItem item = new StrokesAddedOrRemovedCI(doCmdStack, inkCanvas.EditingMode, new StrokeCollection(), lstRemoved, editingOperationCount);
             doCmdStack.Enqueue(item);
         }
 
@@ -260,7 +269,7 @@ namespace RangPaint.ViewModel
             var point = e.GetPosition(inkCanvas);
             if (point.X >= 0 && point.Y >= 0)
             {
-                MouseLocationText = point.X + "," + point.Y + " 像素";
+                MouseLocationText = (int)point.X + "," + (int)point.Y + " 像素";
             }
             else
             {
@@ -271,8 +280,13 @@ namespace RangPaint.ViewModel
             {
                 if (curDraw != null && inkCanvas.GetSelectedStrokes().Count == 0)
                 {
+                    isDraw = true;
                     inkCanvas.EditingMode = InkCanvasEditingMode.None;
                     curDraw.OnMouseMove(inkCanvas, e);
+                }
+                else
+                {
+                    isDraw = false;
                 }
             }
         }
@@ -282,11 +296,15 @@ namespace RangPaint.ViewModel
         }
         public void CanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (curDraw != null)
+            if (curDraw != null && isDraw)
             {
                 curDraw.OnMouseUp(inkCanvas, e);
-            }
+                var lstStrokes = new StrokeCollection() { curDraw.StrokeResult };
+                inkCanvas.Select(lstStrokes);
+                Strokes_Added(lstStrokes);
 
+                isDraw = false;
+            }
             editingOperationCount++;
         }
 

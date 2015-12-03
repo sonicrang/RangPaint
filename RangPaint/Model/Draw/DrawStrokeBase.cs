@@ -16,5 +16,7 @@ namespace RangPaint.Model
 
         public abstract void OnMouseUp(InkCanvas inkCanvas, MouseButtonEventArgs e);
 
+        public Stroke StrokeResult { get; set; }
+
     }
 }
