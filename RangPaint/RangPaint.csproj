@@ -57,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\ResizeThumb.cs" />
     <Compile Include="Model\Draw\DrawArrowLine.cs" />
     <Compile Include="Model\Draw\DrawBrush.cs" />
     <Compile Include="ViewModel\RedoUndo.cs" />
@@ -76,7 +77,6 @@
     <Compile Include="View\CanvasView.xaml.cs">
       <DependentUpon>CanvasView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ResizeThumb.cs" />
     <Compile Include="View\StatusView.xaml.cs">
       <DependentUpon>StatusView.xaml</DependentUpon>
     </Compile>
