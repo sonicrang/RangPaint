@@ -59,9 +59,8 @@
     </ApplicationDefinition>
     <Compile Include="Model\Draw\DrawArrowLine.cs" />
     <Compile Include="Model\Draw\DrawBrush.cs" />
-    <Compile Include="Model\RedoUndo.cs" />
-    <Compile Include="Model\ResizeThumb.cs" />
-    <Compile Include="Model\SelectAdorner.cs" />
+    <Compile Include="ViewModel\RedoUndo.cs" />
+    <Compile Include="Controls\SelectAdorner.cs" />
     <Compile Include="Model\Strokes\ArrowLineStroke.cs" />
     <Compile Include="Model\Strokes\BrushStroke.cs" />
     <Compile Include="Model\Strokes\EllipseStroke.cs" />
@@ -77,6 +76,7 @@
     <Compile Include="View\CanvasView.xaml.cs">
       <DependentUpon>CanvasView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\ResizeThumb.cs" />
     <Compile Include="View\StatusView.xaml.cs">
       <DependentUpon>StatusView.xaml</DependentUpon>
     </Compile>
@@ -175,6 +175,15 @@
   <ItemGroup>
     <Resource Include="Images\brush.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\canvas.png" />
+    <Resource Include="Images\field.png" />
+    <Resource Include="Images\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\color_cursor.cur" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

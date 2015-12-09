@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Media;
 
-namespace RangPaint.Model
+namespace RangPaint.ViewModel
 {
     sealed class DoCommandStack
     {

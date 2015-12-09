@@ -5,16 +5,39 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:control="clr-namespace:RangPaint.Controls"
              xmlns:local="clr-namespace:RangPaint.View"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1280" Background="#FFCBD4E4" >
+    <UserControl.Resources>
+        <Style x:Key="ResizeThumbStyle1" TargetType="{x:Type control:ResizeThumb}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type control:ResizeThumb}">
+                        <Border BorderThickness="5" BorderBrush="Transparent">
+                            <Border BorderBrush="#FF636363" BorderThickness="1" Background="White">
+                            </Border>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
     <ScrollViewer ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
-        <Border Margin="8" Width="800" Height="600" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Border.Effect>
-                <DropShadowEffect Color="#FFC3C3C3"/>
-            </Border.Effect>
-            <InkCanvas x:Name="inkCanvas" >
-            </InkCanvas>
-        </Border>
+        <Grid Margin="8" Width="800" Height="600" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Border>
+                <Border.Effect>
+                    <DropShadowEffect Color="#FFC3C3C3"/>
+                </Border.Effect>
+                <InkCanvas x:Name="inkCanvas" >
+                </InkCanvas>
+            </Border>
+            <control:ResizeThumb Width="16" Height="16" Cursor="SizeWE" Margin="0, 0, -11, 0"
+           VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource ResizeThumbStyle1}"/>
+            <control:ResizeThumb Width="16" Height="16" Cursor="SizeNWSE" Margin="0, 0, -11, -11"
+           VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{DynamicResource ResizeThumbStyle1}"/>
+            <control:ResizeThumb Width="16" Height="16" Cursor="SizeNS" Margin="0, 0, -11, -11"
+           VerticalAlignment="Bottom" HorizontalAlignment="Center" Style="{DynamicResource ResizeThumbStyle1}"/>
+        </Grid>
     </ScrollViewer>
 </UserControl>

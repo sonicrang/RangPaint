@@ -159,7 +159,7 @@
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
-                                            <ei:CallMethodAction MethodName="EraseByStrokeMode" TargetObject="{Binding}"/>
+                                            <ei:CallMethodAction MethodName="ColorPickerMode" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                     <Image  Source="/RangPaint;component/Images/color_picker.png" />

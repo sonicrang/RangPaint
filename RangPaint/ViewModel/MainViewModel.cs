@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Markup;
+using System.Windows.Resources;
 
 namespace RangPaint.ViewModel
 {
@@ -20,20 +22,21 @@ namespace RangPaint.ViewModel
         #region Member
 
         public InkCanvas inkCanvas { get; set; }     //InkCanvas
-
         public DrawStrokeBase curDraw { get; set; }  //current draw stroke
 
-        private StrokeCollection lstStrokeClipBoard;     //clipboard of strokes
+        private StrokeCollection lstStrokeClipBoard; //clipboard of strokes
 
         private Point? selectionStartPoint = null;   //rectangle_select start point
 
+        private DoCommandStack doCmdStack;           //redo undo command stack
+
+        private int editingOperationCount;           //redo undo command count
+
+        private bool isDraw;                         // is drawing stroke
+
+        private bool isColorPickerMode;              // is ColorPicker 
+
         private string mouseLocationText;            //show mouse location
-
-        private DoCommandStack doCmdStack;
-
-        private bool isDraw;
-
-        private int editingOperationCount;
 
         public string MouseLocationText
         {
@@ -45,7 +48,53 @@ namespace RangPaint.ViewModel
             }
         }
 
+        private string fieldSizeText;                //show stroke field size
 
+        public string FieldSizeText
+        {
+            get { return fieldSizeText; }
+            set
+            {
+                fieldSizeText = value;
+                OnPropertyChanged("FieldSizeText");
+            }
+        }
+
+        private string canvasSizeText;                //show canvas size
+
+        public string CanvasSizeText
+        {
+            get { return canvasSizeText; }
+            set
+            {
+                canvasSizeText = value;
+                OnPropertyChanged("CanvasSizeText");
+            }
+        }
+
+        private string fileSizeText;                  //show file size
+
+        public string FileSizeText
+        {
+            get { return fileSizeText; }
+            set
+            {
+                fileSizeText = value;
+                OnPropertyChanged("FileSizeText");
+            }
+        }
+
+        private Visibility isSavedVisible = Visibility.Collapsed;   //is saved visibillity
+
+        public Visibility IsSavedVisible
+        {
+            get { return isSavedVisible; }
+            set
+            {
+                isSavedVisible = value;
+                OnPropertyChanged("IsSavedVisible");
+            }
+        }
         #endregion
 
         #region Function
@@ -59,6 +108,7 @@ namespace RangPaint.ViewModel
             inkCanvas.MouseUp += CanvasMouseUp;
             inkCanvas.SelectionMoving += Canvas_SelectionMovingOrResizing;
             inkCanvas.SelectionResizing += Canvas_SelectionMovingOrResizing;
+            inkCanvas.SizeChanged += InkCanvas_SizeChanged;
 
             doCmdStack = new DoCommandStack(_inkCanvas.Strokes);
             lstStrokeClipBoard = new StrokeCollection();
@@ -102,7 +152,7 @@ namespace RangPaint.ViewModel
 
         public void Paste()
         {
-            if(lstStrokeClipBoard.Count >0)
+            if (lstStrokeClipBoard.Count > 0)
             {
                 editingOperationCount++;
                 var newLstStrokes = lstStrokeClipBoard.Clone();
@@ -169,6 +219,13 @@ namespace RangPaint.ViewModel
             inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
         }
 
+        public void ColorPickerMode()
+        {
+            ExitShapeMode();
+            inkCanvas.EditingMode = InkCanvasEditingMode.None;
+            isColorPickerMode = true;
+        }
+
         public void DrawLine()
         {
             curDraw = new DrawLine();
@@ -196,7 +253,6 @@ namespace RangPaint.ViewModel
 
 
         #endregion
-
 
         #region Event
         public void KeyDown(object sender, KeyEventArgs e)
@@ -239,7 +295,12 @@ namespace RangPaint.ViewModel
             doCmdStack.Enqueue(item);
         }
 
-        public void Canvas_SelectionMovingOrResizing(object sender, InkCanvasSelectionEditingEventArgs e)
+        private void InkCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            CanvasSizeText = inkCanvas.ActualWidth + "," + inkCanvas.ActualHeight + " 像素";
+        }
+
+        private void Canvas_SelectionMovingOrResizing(object sender, InkCanvasSelectionEditingEventArgs e)
         {
             Rect newRect = e.NewRectangle; Rect oldRect = e.OldRectangle;
 
@@ -257,14 +318,31 @@ namespace RangPaint.ViewModel
             doCmdStack.Enqueue(item);
         }
 
-        public void CanvasMouseDown(object sender, MouseButtonEventArgs e)
+        private void CanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (curDraw != null)
             {
                 curDraw.OnMouseDown(inkCanvas, e);
             }
+
+            if(isColorPickerMode)
+            {
+                isColorPickerMode = false;
+                Mouse.OverrideCursor = Cursors.Arrow;
+
+                POINT p;
+                GetCursorPos(out p);
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                int c = GetPixel(hdc, p.X, p.Y); 
+                byte r = (byte)(c & 0xFF);
+                byte g = (byte)((c & 0xFF00) >> 8);
+                byte b = (byte)((c & 0xFF0000) >> 16);
+
+             
+                // set color
+            }
         }
-        public void CanvasMouseMove(object sender, MouseEventArgs e)
+        private void CanvasMouseMove(object sender, MouseEventArgs e)
         {
             var point = e.GetPosition(inkCanvas);
             if (point.X >= 0 && point.Y >= 0)
@@ -289,26 +367,68 @@ namespace RangPaint.ViewModel
                     isDraw = false;
                 }
             }
+
+            if(isColorPickerMode)
+            {
+                StreamResourceInfo sri = Application.GetResourceStream(new Uri("/RangPaint;component/Images/color_cursor.cur", UriKind.Relative));
+                Cursor customCursor = new Cursor(sri.Stream);
+                Mouse.OverrideCursor = customCursor;
+            }
         }
-        public void CanvasMouseLeave(object sender, MouseEventArgs e)
+        private void CanvasMouseLeave(object sender, MouseEventArgs e)
         {
             MouseLocationText = "";
+
+            if (isColorPickerMode)
+            {
+                Mouse.OverrideCursor = Cursors.Arrow;
+            }
         }
-        public void CanvasMouseUp(object sender, MouseButtonEventArgs e)
+        private void CanvasMouseUp(object sender, MouseButtonEventArgs e)
         {
             if (curDraw != null && isDraw)
             {
+                editingOperationCount++;
                 curDraw.OnMouseUp(inkCanvas, e);
                 var lstStrokes = new StrokeCollection() { curDraw.StrokeResult };
                 inkCanvas.Select(lstStrokes);
                 Strokes_Added(lstStrokes);
-
                 isDraw = false;
             }
-            editingOperationCount++;
+            else if (inkCanvas.EditingMode == InkCanvasEditingMode.Ink)
+            {
+                editingOperationCount++;
+                Strokes_Added(new StrokeCollection() { inkCanvas.Strokes[inkCanvas.Strokes.Count - 1] });
+            }
         }
 
         #endregion
+
+        #endregion
+
+        #region win API
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct POINT
+        {
+            public int X;
+            public int Y;
+
+            public POINT(int x, int y)
+            {
+                this.X = x;
+                this.Y = y;
+            }
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool GetCursorPos(out POINT pt);
+
+        [DllImport("user32.dll")]//取设备场景
+        private static extern IntPtr GetDC(IntPtr hwnd);//返回设备场景句柄
+        [DllImport("gdi32.dll")]//取指定点颜色
+        private static extern int GetPixel(IntPtr hdc, int nXPos, int nYPos);
+
 
         #endregion
 
