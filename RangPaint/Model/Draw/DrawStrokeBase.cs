@@ -14,9 +14,7 @@ namespace RangPaint.Model
 
         public abstract void OnMouseMove(InkCanvas inkCanvas, MouseEventArgs e);
 
-        public abstract void OnMouseUp(InkCanvas inkCanvas, MouseButtonEventArgs e);
-
-        public Stroke StrokeResult { get; set; }
+        public StrokeBase StrokeResult { get; set; }
 
     }
 }

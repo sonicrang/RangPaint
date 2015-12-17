@@ -10,58 +10,44 @@ namespace RangPaint.Model
 {
     class DrawBrush : DrawStrokeBase
     {
-        protected bool isDrawing;
         protected Point point;
-        protected BrushStroke drawBrush;
         protected StylusPointCollection pts;
 
         public override void OnMouseDown(InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
         {
-            isDrawing = true;
-            drawBrush = null;
+            StrokeResult = null;
+            point = e.GetPosition(inkCanvas);
             pts = new StylusPointCollection();
         }
 
         public override void OnMouseMove(InkCanvas inkCanvas, System.Windows.Input.MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && isDrawing)
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
-                point = e.GetPosition(inkCanvas);
-
-                GetBrush(pts, (s) =>
+                var p = e.GetPosition(inkCanvas);
+                if (p != point)
                 {
-                    if (drawBrush != null)
-                        inkCanvas.Strokes.Remove(drawBrush);
-
-                    DrawingAttributes drawingAttributes = new DrawingAttributes
+                    point = p;
+                    GetBrush(pts, (s) =>
                     {
-                        Color = inkCanvas.DefaultDrawingAttributes.Color,
-                        Width = inkCanvas.DefaultDrawingAttributes.Width,
-                        StylusTip = StylusTip.Ellipse,
-                        IgnorePressure = true,
-                        FitToCurve = true
-                    };
+                        if (StrokeResult != null)
+                            inkCanvas.Strokes.Remove(StrokeResult);
 
-                    drawBrush = new BrushStroke(s, drawingAttributes);
-                    inkCanvas.Strokes.Add(drawBrush);
-                }
-                );
-            }
-        }
+                        DrawingAttributes drawingAttributes = new DrawingAttributes
+                        {
+                            Color = inkCanvas.DefaultDrawingAttributes.Color,
+                            Width = inkCanvas.DefaultDrawingAttributes.Width,
+                            StylusTip = StylusTip.Ellipse,
+                            IgnorePressure = true,
+                            FitToCurve = true
+                        };
 
-        public override void OnMouseUp(InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (drawBrush != null)
-            {
-                inkCanvas.Strokes.Remove(drawBrush);
-                if (inkCanvas.EditingMode != InkCanvasEditingMode.EraseByPoint && inkCanvas.EditingMode != InkCanvasEditingMode.EraseByStroke)
-                {
-                    var stroke = drawBrush.Clone();
-                    inkCanvas.Strokes.Add(stroke);
-                    StrokeResult = stroke;
+                        StrokeResult = new BrushStroke(s, drawingAttributes);
+                        inkCanvas.Strokes.Add(StrokeResult);
+                    }
+                   );
                 }
             }
-            isDrawing = false;
         }
 
         void GetBrush(StylusPointCollection pts, Action<StylusPointCollection> exec)

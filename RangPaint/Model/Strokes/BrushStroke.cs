@@ -33,8 +33,8 @@ namespace RangPaint.Model
             Color color = drawingAttributes.Color;
             Pen pen = new Pen
             {
-                Brush = new RadialGradientBrush(Color.FromArgb(0x88, color.R, color.B, color.G), Color.FromArgb(0x00, color.R, color.B, color.G)),  // 毛笔笔刷渐变色
-                Thickness = drawingAttributes.Width * 20,        //笔尖宽度     
+                Brush = new RadialGradientBrush(Color.FromArgb(0x88, color.R, color.B, color.G), Color.FromArgb(0x00, color.R, color.B, color.G)), 
+                Thickness = drawingAttributes.Width * 20,     
                 StartLineCap = PenLineCap.Round,
                 EndLineCap = PenLineCap.Round
             };

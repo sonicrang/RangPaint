@@ -10,10 +10,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1280" Background="#FFCBD4E4" >
     <UserControl.Resources>
-        <Style x:Key="ResizeThumbStyle1" TargetType="{x:Type control:ResizeThumb}">
+        <Style x:Key="ResizeThumbStyle1" TargetType="{x:Type control:InkCanvasResizeThumb}">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type control:ResizeThumb}">
+                    <ControlTemplate TargetType="{x:Type control:InkCanvasResizeThumb}">
                         <Border BorderThickness="5" BorderBrush="Transparent">
                             <Border BorderBrush="#FF636363" BorderThickness="1" Background="White">
                             </Border>
@@ -32,11 +32,11 @@
                 <InkCanvas x:Name="inkCanvas" >
                 </InkCanvas>
             </Border>
-            <control:ResizeThumb Width="16" Height="16" Cursor="SizeWE" Margin="0, 0, -11, 0"
+            <control:InkCanvasResizeThumb Width="16" Height="16" Cursor="SizeWE" Margin="0, 0, -11, 0"
            VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource ResizeThumbStyle1}"/>
-            <control:ResizeThumb Width="16" Height="16" Cursor="SizeNWSE" Margin="0, 0, -11, -11"
+            <control:InkCanvasResizeThumb Width="16" Height="16" Cursor="SizeNWSE" Margin="0, 0, -11, -11"
            VerticalAlignment="Bottom" HorizontalAlignment="Right" Style="{DynamicResource ResizeThumbStyle1}"/>
-            <control:ResizeThumb Width="16" Height="16" Cursor="SizeNS" Margin="0, 0, -11, -11"
+            <control:InkCanvasResizeThumb Width="16" Height="16" Cursor="SizeNS" Margin="0, 0, -11, -11"
            VerticalAlignment="Bottom" HorizontalAlignment="Center" Style="{DynamicResource ResizeThumbStyle1}"/>
         </Grid>
     </ScrollViewer>

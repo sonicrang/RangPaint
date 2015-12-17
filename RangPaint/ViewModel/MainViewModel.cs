@@ -1,4 +1,5 @@
-﻿using RangPaint.Model;
+﻿using RangPaint.Controls;
+using RangPaint.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,15 +27,13 @@ namespace RangPaint.ViewModel
 
         private StrokeCollection lstStrokeClipBoard; //clipboard of strokes
 
-        private Point? selectionStartPoint = null;   //rectangle_select start point
-
         private DoCommandStack doCmdStack;           //redo undo command stack
 
         private int editingOperationCount;           //redo undo command count
 
         private bool isDraw;                         // is drawing stroke
 
-        private bool isColorPickerMode;              // is ColorPicker 
+        private ModeEnum curMode;                    // current mode
 
         private string mouseLocationText;            //show mouse location
 
@@ -55,6 +54,7 @@ namespace RangPaint.ViewModel
             get { return fieldSizeText; }
             set
             {
+
                 fieldSizeText = value;
                 OnPropertyChanged("FieldSizeText");
             }
@@ -112,7 +112,11 @@ namespace RangPaint.ViewModel
 
             doCmdStack = new DoCommandStack(_inkCanvas.Strokes);
             lstStrokeClipBoard = new StrokeCollection();
+
+            //init
+            PenMode();
         }
+
 
         #region Command
         public void Delete()
@@ -180,20 +184,12 @@ namespace RangPaint.ViewModel
         #region Tool
 
         /// <summary>
-        /// free select mode
-        /// </summary>
-        public void SelectMode()
-        {
-            ExitShapeMode();
-            inkCanvas.EditingMode = InkCanvasEditingMode.Select;
-        }
-
-        /// <summary>
         /// rectangle seletc mode
         /// </summary>
         public void RecSelectMode()
         {
-            ExitShapeMode();
+            curDraw = null;
+            curMode = ModeEnum.Select;
             inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
 
@@ -204,51 +200,52 @@ namespace RangPaint.ViewModel
 
         public void PenMode()
         {
-            ExitShapeMode();
+            curDraw = null;
+            curMode = ModeEnum.Pen;
             inkCanvas.EditingMode = InkCanvasEditingMode.Ink;
         }
 
         public void BrushMode()
         {
+            curMode = ModeEnum.Draw;
             curDraw = new DrawBrush();
         }
 
         public void EraseByStrokeMode()
         {
-            ExitShapeMode();
+            curDraw = null;
+            curMode = ModeEnum.Eraser;
             inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
         }
 
         public void ColorPickerMode()
         {
-            ExitShapeMode();
+            curDraw = null;
+            curMode = ModeEnum.ColorPicker;
             inkCanvas.EditingMode = InkCanvasEditingMode.None;
-            isColorPickerMode = true;
         }
 
         public void DrawLine()
         {
+            curMode = ModeEnum.Draw;
             curDraw = new DrawLine();
         }
 
         public void DrawEllipse()
         {
+            curMode = ModeEnum.Draw;
             curDraw = new DrawEllipse(false, null);
         }
         public void DrawRectangle()
         {
+            curMode = ModeEnum.Draw;
             curDraw = new DrawRectangle(false, null);
         }
 
         public void DrawTriangle()
         {
-
+            curMode = ModeEnum.Draw;
             curDraw = new DrawRectangle(false, null);
-        }
-
-        private void ExitShapeMode()
-        {
-            curDraw = null;
         }
 
 
@@ -320,26 +317,56 @@ namespace RangPaint.ViewModel
 
         private void CanvasMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (curDraw != null)
+            if (inkCanvas.EditingMode == InkCanvasEditingMode.Select && inkCanvas.GetSelectedStrokes().Count > 0)
             {
-                curDraw.OnMouseDown(inkCanvas, e);
+                Rect rect = inkCanvas.GetSelectionBounds();  //bound of strokes
+                rect.Inflate(14, 14);                        //bound of resize thumb
+                if (!rect.Contains(e.GetPosition(inkCanvas)))
+                {
+                    inkCanvas.EditingMode = InkCanvasEditingMode.None;
+                }
+                else
+                {
+                    return;
+                }
             }
 
-            if(isColorPickerMode)
+            switch (curMode)
             {
-                isColorPickerMode = false;
-                Mouse.OverrideCursor = Cursors.Arrow;
+                case ModeEnum.Draw:
+                    if (curDraw != null)
+                    {
+                        curDraw.OnMouseDown(inkCanvas, e);
+                    }
+                    break;
 
-                POINT p;
-                GetCursorPos(out p);
-                IntPtr hdc = GetDC(IntPtr.Zero);
-                int c = GetPixel(hdc, p.X, p.Y); 
-                byte r = (byte)(c & 0xFF);
-                byte g = (byte)((c & 0xFF00) >> 8);
-                byte b = (byte)((c & 0xFF0000) >> 16);
+                case ModeEnum.Select:
+                    var selectionStartPoint = new Point?(e.GetPosition(inkCanvas));
+                    AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(inkCanvas);
+                    if (adornerLayer != null)
+                    {
+                        SelectAdorner adorner = new SelectAdorner(inkCanvas, selectionStartPoint);
+                        if (adorner != null)
+                        {
+                            adornerLayer.Add(adorner);
+                        }
+                    }
+                    break;
 
-             
-                // set color
+                case ModeEnum.ColorPicker:
+
+                    Mouse.OverrideCursor = Cursors.Arrow;
+                    POINT p;
+                    GetCursorPos(out p);
+                    IntPtr hdc = GetDC(IntPtr.Zero);
+                    int c = GetPixel(hdc, p.X, p.Y);
+                    byte r = (byte)(c & 0xFF);
+                    byte g = (byte)((c & 0xFF00) >> 8);
+                    byte b = (byte)((c & 0xFF0000) >> 16);
+                    // set color
+
+                    PenMode();
+                    break;
             }
         }
         private void CanvasMouseMove(object sender, MouseEventArgs e)
@@ -361,25 +388,39 @@ namespace RangPaint.ViewModel
                     isDraw = true;
                     inkCanvas.EditingMode = InkCanvasEditingMode.None;
                     curDraw.OnMouseMove(inkCanvas, e);
+
+                    if (curDraw.StrokeResult != null)
+                    {
+                        Rect rect = curDraw.StrokeResult.GetBounds();
+                        FieldSizeText = (int)rect.Width + "," + (int)rect.Height + " 像素";
+                    }
+
                 }
                 else
                 {
+                    if (inkCanvas.GetSelectedStrokes().Count > 0)
+                    {
+                        Rect rect = inkCanvas.GetSelectedStrokes().GetBounds();
+                        FieldSizeText = (int)rect.Width + "," + (int)rect.Height + " 像素";
+                    }
                     isDraw = false;
                 }
             }
 
-            if(isColorPickerMode)
+            if (curMode == ModeEnum.ColorPicker)
             {
                 StreamResourceInfo sri = Application.GetResourceStream(new Uri("/RangPaint;component/Images/color_cursor.cur", UriKind.Relative));
                 Cursor customCursor = new Cursor(sri.Stream);
                 Mouse.OverrideCursor = customCursor;
             }
+
+            e.Handled = true;
         }
         private void CanvasMouseLeave(object sender, MouseEventArgs e)
         {
             MouseLocationText = "";
 
-            if (isColorPickerMode)
+            if (curMode == ModeEnum.ColorPicker)
             {
                 Mouse.OverrideCursor = Cursors.Arrow;
             }
@@ -388,18 +429,22 @@ namespace RangPaint.ViewModel
         {
             if (curDraw != null && isDraw)
             {
-                editingOperationCount++;
-                curDraw.OnMouseUp(inkCanvas, e);
-                var lstStrokes = new StrokeCollection() { curDraw.StrokeResult };
-                inkCanvas.Select(lstStrokes);
-                Strokes_Added(lstStrokes);
-                isDraw = false;
+                if (curDraw.StrokeResult != null)
+                {
+                    editingOperationCount++;
+                    var lstStrokes = new StrokeCollection() { curDraw.StrokeResult };
+                    inkCanvas.Select(lstStrokes);
+                    Strokes_Added(lstStrokes);
+                    isDraw = false;
+                }
+
             }
             else if (inkCanvas.EditingMode == InkCanvasEditingMode.Ink)
             {
                 editingOperationCount++;
                 Strokes_Added(new StrokeCollection() { inkCanvas.Strokes[inkCanvas.Strokes.Count - 1] });
             }
+
         }
 
         #endregion

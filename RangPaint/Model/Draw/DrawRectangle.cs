@@ -13,7 +13,6 @@ namespace RangPaint.Model
     {
         protected Point topLeft;
         protected Point bottomRight;
-        protected RectangleStroke drawRectangle;
         protected Brush backGround;
 
         public DrawRectangle(bool isFill, Brush backGround)
@@ -27,7 +26,7 @@ namespace RangPaint.Model
 
         public override void OnMouseDown(System.Windows.Controls.InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
         {
-            drawRectangle = null;
+            StrokeResult = null;
             topLeft = e.GetPosition(inkCanvas);
         }
 
@@ -36,41 +35,30 @@ namespace RangPaint.Model
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 bottomRight = e.GetPosition(inkCanvas);
-
-                StylusPointCollection pts = new StylusPointCollection();
-                GetRectangle(pts, (s) =>
+                if(topLeft != bottomRight)
                 {
-                    if (drawRectangle != null)
-                        inkCanvas.Strokes.Remove(drawRectangle);
-
-                    DrawingAttributes drawingAttributes = new DrawingAttributes
+                    StylusPointCollection pts = new StylusPointCollection();
+                    GetRectangle(pts, (s) =>
                     {
-                        Color = inkCanvas.DefaultDrawingAttributes.Color,
-                        Width = inkCanvas.DefaultDrawingAttributes.Width,
-                        StylusTip = StylusTip.Ellipse,
-                        IgnorePressure = true,
-                        FitToCurve = true
-                    };
+                        if (StrokeResult != null)
+                            inkCanvas.Strokes.Remove(StrokeResult);
 
-                    drawRectangle = new RectangleStroke(s, drawingAttributes);
-                    drawRectangle.BackGround = backGround;
-                    inkCanvas.Strokes.Add(drawRectangle);
-                }
-                );
-            }
-        }
+                        DrawingAttributes drawingAttributes = new DrawingAttributes
+                        {
+                            Color = inkCanvas.DefaultDrawingAttributes.Color,
+                            Width = inkCanvas.DefaultDrawingAttributes.Width,
+                            StylusTip = StylusTip.Ellipse,
+                            IgnorePressure = true,
+                            FitToCurve = true
+                        };
 
-        public override void OnMouseUp(System.Windows.Controls.InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (drawRectangle != null)
-            {
-                inkCanvas.Strokes.Remove(drawRectangle);
-                if (inkCanvas.EditingMode != InkCanvasEditingMode.EraseByPoint && inkCanvas.EditingMode != InkCanvasEditingMode.EraseByStroke)
-                {
-                    var stroke = drawRectangle.Clone();
-                    inkCanvas.Strokes.Add(stroke);
-                    StrokeResult = stroke;
+                        StrokeResult = new RectangleStroke(s, drawingAttributes);
+                        StrokeResult.BackGround = backGround;
+                        inkCanvas.Strokes.Add(StrokeResult);
+                    }
+                    );
                 }
+               
             }
         }
 

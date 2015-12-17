@@ -14,16 +14,13 @@ namespace RangPaint.Model
     {
 
         protected Point startPoint;
-
         protected Point endPoint;
-
-        protected ArrowLineStroke drawLine;
-
 
         public override void OnMouseDown(InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
         {
-            drawLine = null;
+            StrokeResult = null;
             startPoint = e.GetPosition(inkCanvas);
+
         }
 
         public override void OnMouseMove(InkCanvas inkCanvas, System.Windows.Input.MouseEventArgs e)
@@ -31,41 +28,32 @@ namespace RangPaint.Model
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 endPoint = e.GetPosition(inkCanvas);
-                StylusPointCollection pts = new StylusPointCollection();
-                GetLine(pts, (s) =>
-                {
-                    if (drawLine != null)
-                        inkCanvas.Strokes.Remove(drawLine);
 
-                    DrawingAttributes drawingAttributes = new DrawingAttributes
+                if (startPoint != endPoint)
+                {
+                    StylusPointCollection pts = new StylusPointCollection();
+                    GetLine(pts, (s) =>
                     {
-                        Color = inkCanvas.DefaultDrawingAttributes.Color,
-                        Width = inkCanvas.DefaultDrawingAttributes.Width,
-                        StylusTip = StylusTip.Ellipse,
-                        IgnorePressure = true,
-                        FitToCurve = true
-                    };
+                        if (StrokeResult != null)
+                            inkCanvas.Strokes.Remove(StrokeResult);
 
-                    drawLine = new ArrowLineStroke(s, drawingAttributes);
-                    inkCanvas.Strokes.Add(drawLine);
-                }
-                );
-            }
-        }
+                        DrawingAttributes drawingAttributes = new DrawingAttributes
+                        {
+                            Color = inkCanvas.DefaultDrawingAttributes.Color,
+                            Width = inkCanvas.DefaultDrawingAttributes.Width,
+                            StylusTip = StylusTip.Ellipse,
+                            IgnorePressure = true,
+                            FitToCurve = true
+                        };
 
-        public override void OnMouseUp(InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (drawLine != null)
-            {
-                inkCanvas.Strokes.Remove(drawLine);
-                if (inkCanvas.EditingMode != InkCanvasEditingMode.EraseByPoint && inkCanvas.EditingMode != InkCanvasEditingMode.EraseByStroke)
-                {
-                    var stroke = drawLine.Clone();
-                    inkCanvas.Strokes.Add(stroke);
-                    StrokeResult = stroke;
+                        StrokeResult = new ArrowLineStroke(s, drawingAttributes);
+                        inkCanvas.Strokes.Add(StrokeResult);
+                    }
+                    );
                 }
             }
         }
+
 
         void GetLine(StylusPointCollection pts, Action<StylusPointCollection> exec)
         {

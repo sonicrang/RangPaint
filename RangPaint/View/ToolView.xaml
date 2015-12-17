@@ -66,29 +66,7 @@
                                 <RowDefinition Height="15"/>
                             </Grid.RowDefinitions>
                             <DockPanel Margin="10,10,10,0">
-                                <Button Background="{x:Null}" BorderBrush="{x:Null}" >
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="Click">
-                                            <ei:CallMethodAction MethodName="RecSelectMode" TargetObject="{Binding}"/>
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                    <StackPanel>
-                                        <Image Width="30" Source="/RangPaint;component/Images/select.png" />
-                                        <TextBlock Text="选择" HorizontalAlignment="Center" Margin="0,8"/>
-                                    </StackPanel>
-                                </Button>
                                 <StackPanel Margin="5,0,0,0">
-                                    <Button Background="{x:Null}" BorderBrush="{x:Null}" HorizontalAlignment="Left">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="Click">
-                                                <ei:CallMethodAction MethodName="SelectMode" TargetObject="{Binding}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Image Width="18" Source="/RangPaint;component/Images/select_free.png" />
-                                            <TextBlock Text="自由图形选择" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3,0"/>
-                                        </StackPanel>
-                                    </Button>
                                     <Button Background="{x:Null}" BorderBrush="{x:Null}" HorizontalAlignment="Left">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="Click">
@@ -113,7 +91,7 @@
                                     </Button>
                                 </StackPanel>
                             </DockPanel>
-                            <TextBlock Grid.Row="1" Text="图像" Foreground="Gray" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Row="1" Text="画布" Foreground="Gray" HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
                     <Border Width="97" BorderBrush="LightGray" BorderThickness="0,0,1,0" Margin="0,2">
@@ -123,6 +101,14 @@
                                 <RowDefinition Height="15"/>
                             </Grid.RowDefinitions>
                             <WrapPanel VerticalAlignment="Center">
+                                <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <ei:CallMethodAction MethodName="RecSelectMode" TargetObject="{Binding}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                    <Image  Source="/RangPaint;component/Images/select.png" />
+                                </Button>
                                 <Button Width="22" Height="22" Margin="5" Background="{x:Null}" BorderBrush="{x:Null}" >
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">

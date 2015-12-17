@@ -57,9 +57,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\ResizeThumb.cs" />
+    <Compile Include="Controls\InkCanvasResizeThumb.cs" />
     <Compile Include="Model\Draw\DrawArrowLine.cs" />
     <Compile Include="Model\Draw\DrawBrush.cs" />
+    <Compile Include="Model\ModeEnum.cs" />
     <Compile Include="ViewModel\RedoUndo.cs" />
     <Compile Include="Controls\SelectAdorner.cs" />
     <Compile Include="Model\Strokes\ArrowLineStroke.cs" />

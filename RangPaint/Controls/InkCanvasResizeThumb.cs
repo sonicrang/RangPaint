@@ -5,16 +5,19 @@ using System.Windows.Controls.Primitives;
 
 namespace RangPaint.Controls
 {
-    public class ResizeThumb : Thumb
+    /// <summary>
+    /// ResizeThumb of InkCanvas
+    /// </summary>
+    public class InkCanvasResizeThumb : Thumb
     {
-        public ResizeThumb()
+        public InkCanvasResizeThumb()
         {
             DragDelta += new DragDeltaEventHandler(this.ResizeThumb_DragDelta);
         }
 
         private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            var thumb = sender as ResizeThumb;
+            var thumb = sender as InkCanvasResizeThumb;
             if (thumb != null)
             {
                 Grid item = thumb.Parent as Grid;

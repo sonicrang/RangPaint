@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,6 +13,9 @@ using System.Windows.Media;
 
 namespace RangPaint.Controls
 {
+    /// <summary>
+    /// RectSelectModeAdorner
+    /// </summary>
     class SelectAdorner : Adorner
     {
         private Point? startPoint;
@@ -25,9 +29,12 @@ namespace RangPaint.Controls
         {
             this.inkCanvas = inkCanvas;
             this.startPoint = dragStartPoint;
+            this.endPoint = Mouse.GetPosition(inkCanvas);
+
             pen = new Pen(Brushes.LightSlateGray, 1);
             pen.DashStyle = new DashStyle(new double[] { 2 }, 1);
         }
+
 
         protected override void OnMouseMove(System.Windows.Input.MouseEventArgs e)
 
@@ -46,39 +53,38 @@ namespace RangPaint.Controls
                 if (this.IsMouseCaptured) this.ReleaseMouseCapture();
             }
 
-            //e.Handled = true;
+            e.Handled = true;
         }
 
         protected override void OnMouseUp(System.Windows.Input.MouseButtonEventArgs e)
         {
-            // release mouse capture
             if (this.IsMouseCaptured) this.ReleaseMouseCapture();
 
-            // remove this adorner from adorner layer
+            // remove adorner layer
             AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(this.inkCanvas);
             if (adornerLayer != null)
+            {
                 adornerLayer.Remove(this);
-
-            //e.Handled = true;
+            }
+            e.Handled = true;
         }
 
         protected override void OnRender(DrawingContext dc)
         {
             base.OnRender(dc);
-
-            // without a background the OnMouseMove event would not be fired!
-            // Alternative: implement a Canvas as a child of this adorner, like
-            // the ConnectionAdorner does.
             dc.DrawRectangle(Brushes.Transparent, null, new Rect(RenderSize));
 
             if (this.startPoint.HasValue && this.endPoint.HasValue)
                 dc.DrawRectangle(Brushes.Transparent, pen, new Rect(this.startPoint.Value, this.endPoint.Value));
         }
 
+        /// <summary>
+        /// Update Selected Strokes
+        /// </summary>
         private void UpdateSelection()
         {
             Rect rubberBand = new Rect(startPoint.Value, endPoint.Value);
-            var lstSelectedStrokes = new List<Stroke>();
+            StrokeCollection lstSelectedStrokes = new StrokeCollection();
             foreach (var item in inkCanvas.Strokes)
             {
                 Rect itemRect = item.GetBounds();
@@ -88,7 +94,10 @@ namespace RangPaint.Controls
                 }
             }
 
-            inkCanvas.Select(new StrokeCollection(lstSelectedStrokes));
+            inkCanvas.Select(lstSelectedStrokes);
+
+            if (lstSelectedStrokes.Count == 0)
+                inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
     }
 }

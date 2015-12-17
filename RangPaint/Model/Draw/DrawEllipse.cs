@@ -11,7 +11,6 @@ namespace RangPaint.Model
     {
         protected Point topLeft;
         protected Point bottomRight;
-        protected EllipseStroke drawEllipse;
         protected Brush backGround;
 
         public DrawEllipse(bool isFill, Brush backGround)
@@ -24,7 +23,7 @@ namespace RangPaint.Model
 
         public override void OnMouseDown(System.Windows.Controls.InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
         {
-            drawEllipse = null;
+            StrokeResult = null;
             topLeft = e.GetPosition(inkCanvas);
         }
 
@@ -33,40 +32,28 @@ namespace RangPaint.Model
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 bottomRight = e.GetPosition(inkCanvas);
-
-                StylusPointCollection pts = new StylusPointCollection();
-                GetEllipse(pts, (s) =>
+                if(topLeft != bottomRight)
                 {
-                    if (drawEllipse != null)
-                        inkCanvas.Strokes.Remove(drawEllipse);
-
-                    DrawingAttributes drawingAttributes = new DrawingAttributes
+                    StylusPointCollection pts = new StylusPointCollection();
+                    GetEllipse(pts, (s) =>
                     {
-                        Color = inkCanvas.DefaultDrawingAttributes.Color,
-                        Width = inkCanvas.DefaultDrawingAttributes.Width,
-                        StylusTip = StylusTip.Ellipse,
-                        IgnorePressure = true,
-                        FitToCurve = true
-                    };
+                        if (StrokeResult != null)
+                            inkCanvas.Strokes.Remove(StrokeResult);
 
-                    drawEllipse = new EllipseStroke(s, drawingAttributes);
-                    drawEllipse.BackGround = backGround;
-                    inkCanvas.Strokes.Add(drawEllipse);
-                }
-                );
-            }
-        }
+                        DrawingAttributes drawingAttributes = new DrawingAttributes
+                        {
+                            Color = inkCanvas.DefaultDrawingAttributes.Color,
+                            Width = inkCanvas.DefaultDrawingAttributes.Width,
+                            StylusTip = StylusTip.Ellipse,
+                            IgnorePressure = true,
+                            FitToCurve = true
+                        };
 
-        public override void OnMouseUp(System.Windows.Controls.InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (drawEllipse != null)
-            {
-                inkCanvas.Strokes.Remove(drawEllipse);
-                if (inkCanvas.EditingMode != InkCanvasEditingMode.EraseByPoint && inkCanvas.EditingMode != InkCanvasEditingMode.EraseByStroke)
-                {
-                    var stroke = drawEllipse.Clone();
-                    inkCanvas.Strokes.Add(stroke);
-                    StrokeResult = stroke;
+                        StrokeResult = new EllipseStroke(s, drawingAttributes);
+                        StrokeResult.BackGround = backGround;
+                        inkCanvas.Strokes.Add(StrokeResult);
+                    }
+                    );
                 }
             }
         }
