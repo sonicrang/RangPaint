@@ -13,16 +13,6 @@ namespace RangPaint.Model
     {
         protected Point topLeft;
         protected Point bottomRight;
-        protected Brush backGround;
-
-        public DrawRectangle(bool isFill, Brush backGround)
-        {
-            if (isFill)
-            {
-                this.backGround = backGround;
-            }
-        }
-
 
         public override void OnMouseDown(System.Windows.Controls.InkCanvas inkCanvas, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -51,9 +41,10 @@ namespace RangPaint.Model
                             IgnorePressure = true,
                             FitToCurve = true
                         };
+                        var BackgroundColor = inkCanvas.DefaultDrawingAttributes.GetPropertyData(DrawAttributesGuid.BackgroundColor);
+                        drawingAttributes.AddPropertyData(DrawAttributesGuid.BackgroundColor, BackgroundColor);
 
                         StrokeResult = new RectangleStroke(s, drawingAttributes);
-                        StrokeResult.BackGround = backGround;
                         inkCanvas.Strokes.Add(StrokeResult);
                     }
                     );

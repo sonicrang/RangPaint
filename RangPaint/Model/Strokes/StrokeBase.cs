@@ -37,32 +37,5 @@ namespace RangPaint.Model
                 return (bool)property.GetValue(this, null);
             }
         }
-
-
-
-        private double lineWidth = 1.0;
-
-        public double LineWidth
-        {
-            get { return lineWidth; }
-            set { lineWidth = value; }
-        }
-
-        private Brush foreGround = Brushes.Black;
-
-        public Brush ForeGround
-        {
-            get { return foreGround; }
-            set { foreGround = value; }
-        }
-
-        private Brush backGround = null;
-
-        public Brush BackGround
-        {
-            get { return backGround; }
-            set { backGround = value; }
-        }
-
     }
 }

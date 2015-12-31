@@ -6,15 +6,8 @@ using System.Threading.Tasks;
 
 namespace RangPaint.Model
 {
-    public enum ModeEnum
+    public static class DrawAttributesGuid
     {
-        None,
-        Select,
-        ColorPicker,
-        Pen,
-        Eraser,
-        Draw,
-        Foreground,
-        Background
+        public static Guid BackgroundColor = new Guid("6F03AB24-31E5-4152-BF30-7E0F61FD40F7");
     }
 }

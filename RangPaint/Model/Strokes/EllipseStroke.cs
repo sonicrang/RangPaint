@@ -47,6 +47,8 @@ namespace RangPaint.Model
             double radiusX = (r.Right - r.Left) / 2.0;
             double radiusY = (r.Bottom - r.Top) / 2.0;
 
+            BrushConverter bc = new BrushConverter();
+            Brush BackGround = (Brush)bc.ConvertFromString(drawingAttributes.GetPropertyData(DrawAttributesGuid.BackgroundColor).ToString());
 
             drawingContext.DrawEllipse(
                 BackGround,

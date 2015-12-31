@@ -13,6 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Markup;
+using System.Windows.Media;
 using System.Windows.Resources;
 
 namespace RangPaint.ViewModel
@@ -34,6 +35,83 @@ namespace RangPaint.ViewModel
         private bool isDraw;                         // is drawing stroke
 
         private ModeEnum curMode;                    // current mode
+
+        private Brush foreground;
+
+        public Brush Foreground
+        {
+            get { return foreground; }
+            set
+            {
+
+                foreground = value;
+                var color = ((SolidColorBrush)foreground).Color;
+                inkCanvas.DefaultDrawingAttributes.Color = color;
+                var lstStrokes = inkCanvas.GetSelectedStrokes();
+
+                if (lstStrokes.Count > 0)
+                {
+                    foreach (var stroke in lstStrokes)
+                    {
+                        stroke.DrawingAttributes.Color = color;
+                    }
+                }
+                OnPropertyChanged("Foreground");
+            }
+        }
+
+        private Brush background;
+
+        public Brush Background
+        {
+            get { return background; }
+            set
+            {
+                background = value;
+
+                inkCanvas.DefaultDrawingAttributes.AddPropertyData(DrawAttributesGuid.BackgroundColor, background.ToString());
+
+                var lstStrokes = inkCanvas.GetSelectedStrokes();
+
+                if (lstStrokes.Count > 0)
+                {
+                    foreach (var stroke in lstStrokes)
+                    {
+                        //get DrawingAttributes and set DrawingAttributes to trigger AttributesChanged event
+                        var attr = stroke.DrawingAttributes;
+                        attr.AddPropertyData(DrawAttributesGuid.BackgroundColor, background.ToString());
+
+                        stroke.DrawingAttributes = attr;
+                    }
+                }
+                OnPropertyChanged("Background");
+            }
+        }
+
+        private int penWidthIndex;
+
+        public int PenWidthIndex
+        {
+            get { return penWidthIndex; }
+            set
+            {
+                penWidthIndex = value;
+                var width = (penWidthIndex + 1) * 2;
+                inkCanvas.DefaultDrawingAttributes.Height = inkCanvas.DefaultDrawingAttributes.Width = width;
+
+                var lstStrokes = inkCanvas.GetSelectedStrokes();
+
+                if (lstStrokes.Count > 0)
+                {
+                    foreach (var stroke in lstStrokes)
+                    {
+                        stroke.DrawingAttributes.Height = stroke.DrawingAttributes.Width = width;
+                    }
+                }
+
+                OnPropertyChanged("PenWidthIndex");
+            }
+        }
 
         private string mouseLocationText;            //show mouse location
 
@@ -114,6 +192,10 @@ namespace RangPaint.ViewModel
             lstStrokeClipBoard = new StrokeCollection();
 
             //init
+            PenWidthIndex = 0;
+            Foreground = Brushes.Black;
+            Background = Brushes.White;
+
             PenMode();
         }
 
@@ -234,18 +316,47 @@ namespace RangPaint.ViewModel
         public void DrawEllipse()
         {
             curMode = ModeEnum.Draw;
-            curDraw = new DrawEllipse(false, null);
+            curDraw = new DrawEllipse();
         }
         public void DrawRectangle()
         {
             curMode = ModeEnum.Draw;
-            curDraw = new DrawRectangle(false, null);
+            curDraw = new DrawRectangle();
         }
 
         public void DrawTriangle()
         {
             curMode = ModeEnum.Draw;
-            curDraw = new DrawRectangle(false, null);
+            curDraw = new DrawRectangle();
+        }
+
+        public void ForegroundMode()
+        {
+            curDraw = null;
+            curMode = ModeEnum.Foreground;
+        }
+
+        public void BackgroundMode()
+        {
+            curDraw = null;
+            curMode = ModeEnum.Background;
+        }
+
+
+        public void SelectColorClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.Source is Button)
+            {
+                Button btn = e.Source as Button;
+                if (curMode == ModeEnum.Foreground)
+                {
+                    Foreground = btn.Background;
+                }
+                else if (curMode == ModeEnum.Background)
+                {
+                    Background = btn.Background;
+                }
+            }
         }
 
 
@@ -414,7 +525,6 @@ namespace RangPaint.ViewModel
                 Mouse.OverrideCursor = customCursor;
             }
 
-            e.Handled = true;
         }
         private void CanvasMouseLeave(object sender, MouseEventArgs e)
         {

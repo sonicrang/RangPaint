@@ -35,6 +35,10 @@ namespace RangPaint.Model
                 Brush = new SolidColorBrush(drawingAttributes.Color),
                 Thickness = drawingAttributes.Width
             };
+
+            BrushConverter bc = new BrushConverter();
+            Brush BackGround = (Brush)bc.ConvertFromString(drawingAttributes.GetPropertyData(DrawAttributesGuid.BackgroundColor).ToString());
+
             drawingContext.DrawRectangle(
                 BackGround,
                 pen,
