@@ -5,12 +5,13 @@ using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
+using System.Windows.Shapes;
 
 namespace RangPaint.Model
 {
-    public class RectangleStroke : StrokeBase
+    class TriangleStroke : StrokeBase
     {
-        public RectangleStroke(StylusPointCollection pts, DrawingAttributes da)
+        public TriangleStroke(StylusPointCollection pts, DrawingAttributes da)
             : base(pts, da)
         {
             this.StylusPoints = pts;
@@ -37,12 +38,10 @@ namespace RangPaint.Model
 
             BrushConverter bc = new BrushConverter();
             Brush BackGround = (Brush)bc.ConvertFromString(drawingAttributes.GetPropertyData(DrawAttributesGuid.BackgroundColor).ToString());
-
-            drawingContext.DrawRectangle(
-                BackGround,
-                pen,
-                new Rect(new Point(StylusPoints[0].X, StylusPoints[0].Y),
-                    new Point(StylusPoints[1].X, StylusPoints[1].Y)));
+            GeometryConverter gc = new GeometryConverter();
+            Geometry geometry = (Geometry)gc.ConvertFromString(string.Format("M {0},{1} {2},{3} {4},{5} Z", StylusPoints[0].X, StylusPoints[1].Y, (Math.Abs(StylusPoints[1].X - StylusPoints[0].X))/2 + StylusPoints[0].X, StylusPoints[0].Y, StylusPoints[1].X, StylusPoints[1].Y));
+            GeometryDrawing gd = new GeometryDrawing(BackGround, pen, geometry);
+            drawingContext.DrawDrawing(gd);
         }
     }
 }

@@ -90,6 +90,28 @@ namespace RangPaint.ViewModel
             }
         }
 
+        private Color selectColor;
+
+        public Color SelectColor
+        {
+            get { return selectColor; }
+            set
+            {
+                selectColor = value;
+                if(curColorMode == ColorModeEnum.Background)
+                {
+                    Background = new SolidColorBrush(selectColor);
+                }
+                else if (curColorMode == ColorModeEnum.Foreground)
+                {
+                    Foreground = new SolidColorBrush(selectColor);
+                }
+                OnPropertyChanged("SelectColor");
+            }
+        }
+        
+
+
         private int penWidthIndex;
 
         public int PenWidthIndex
@@ -175,6 +197,19 @@ namespace RangPaint.ViewModel
                 OnPropertyChanged("IsSavedVisible");
             }
         }
+
+        private bool isOpenEditColor;
+
+        public bool IsOpenEditColor
+        {
+            get { return isOpenEditColor; }
+            set
+            {
+                isOpenEditColor = value;
+                OnPropertyChanged("IsOpenEditColor");
+            }
+        }
+
         #endregion
 
         #region Function
@@ -193,10 +228,11 @@ namespace RangPaint.ViewModel
             doCmdStack = new DoCommandStack(_inkCanvas.Strokes);
             lstStrokeClipBoard = new StrokeCollection();
 
-            //init
+            //Init
             PenWidthIndex = 0;
             Foreground = Brushes.Black;
             Background = Brushes.White;
+            SelectColor = Colors.White;
             curColorMode = ColorModeEnum.Foreground;
             curColorPickerMode = ColorPickerModeEnum.False;
 
@@ -331,21 +367,29 @@ namespace RangPaint.ViewModel
         public void DrawTriangle()
         {
             curOperationMode = ModeEnum.Draw;
-            curDraw = new DrawRectangle();
+            curDraw = new DrawTriangle();
+        }
+
+        public void DrawArrow()
+        {
+            curOperationMode = ModeEnum.Draw;
+            curDraw = new DrawArrowLine();
         }
 
         public void ForegroundMode()
         {
-            curDraw = null;
             curColorMode = ColorModeEnum.Foreground;
         }
 
         public void BackgroundMode()
         {
-            curDraw = null;
             curColorMode = ColorModeEnum.Background;
         }
 
+        public void EditColorMode()
+        {
+            IsOpenEditColor = true;
+        }
 
         public void SelectColorClick(object sender, MouseButtonEventArgs e)
         {
@@ -485,7 +529,7 @@ namespace RangPaint.ViewModel
                     break;
             }
 
-            
+
         }
         private void CanvasMouseMove(object sender, MouseEventArgs e)
         {
