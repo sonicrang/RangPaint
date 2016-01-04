@@ -92,6 +92,30 @@
             <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
             <Setter Property="Template" Value="{StaticResource ComboBoxTemplate}"/>
         </Style>
+        <Style x:Key="ColorButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border" BorderBrush="Gray" BorderThickness="1"  SnapsToDevicePixels="true">
+                            <Border Margin="1,1" Background="{TemplateBinding Background}">
+                                <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="#FF56C9FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="#FF56C9FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <TabControl x:Name="tabControl">
@@ -304,7 +328,7 @@
                             <TextBlock Grid.Row="1" Text="粗细" Foreground="Gray" HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
-                    <Border Width="400" BorderBrush="LightGray" BorderThickness="0,0,1,0" Margin="0,2">
+                    <Border Width="433" BorderBrush="LightGray" BorderThickness="0,0,1,0" Margin="0,2">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -322,7 +346,7 @@
                                             <Rectangle Stroke="Gray"/>
                                             <Rectangle Width="26" Height="26" Fill="{Binding Foreground}"/>
                                         </Grid>
-                                        <TextBlock Text="前景色" HorizontalAlignment="Center" Margin="0,8"/>
+                                        <TextBlock Text="前景色" HorizontalAlignment="Center" Margin="2,8"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Background="Transparent" BorderBrush="{x:Null}" Margin="0,10,0,0">
@@ -336,13 +360,13 @@
                                             <Rectangle Stroke="Gray"/>
                                             <Rectangle Width="26" Height="26" Fill="{Binding Background}"/>
                                         </Grid>
-                                        <TextBlock Text="背景色" HorizontalAlignment="Center" Margin="0,8"/>
+                                        <TextBlock Text="背景色" HorizontalAlignment="Center" Margin="2,8"/>
                                     </StackPanel>
                                 </Button>
-                                <Button Background="{x:Null}" DockPanel.Dock="Right" BorderBrush="{x:Null}" Margin="0,10,0,0">
+                                <Button Background="{x:Null}" DockPanel.Dock="Right" BorderBrush="{x:Null}" Margin="0,10,10,0">
                                     <StackPanel>
                                         <Rectangle Width="30"  Height="30" Stroke="Gray"/>
-                                        <TextBlock Text="编辑颜色" HorizontalAlignment="Center" Margin="0,8"/>
+                                        <TextBlock Text="编辑颜色" HorizontalAlignment="Center" Margin="2,8"/>
                                     </StackPanel>
                                 </Button>
                                 <WrapPanel HorizontalAlignment="Center" Margin="0,10,0,0" >
@@ -351,26 +375,26 @@
                                             <ei:CallMethodAction MethodName="SelectColorClick" TargetObject="{Binding}"/>
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
-                                    <Button Width="20" Height="20" Margin="2" Background="Black"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Gray"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="DarkRed"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Red"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Orange"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Yellow"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Green"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="blue"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Indigo"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Purple"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="White"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="LightGray"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Brown"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Pink"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Gold"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="LightYellow"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Lime"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="LightSkyBlue"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="SteelBlue"/>
-                                    <Button Width="20" Height="20" Margin="2" Background="Lavender"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Black" ToolTip="黑色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Gray" ToolTip="灰色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="DarkRed" ToolTip="深红" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Red" ToolTip="红色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Orange" ToolTip="橙色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Yellow" ToolTip="黄色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Green" ToolTip="绿色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Blue" ToolTip="蓝色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Indigo" ToolTip="靛蓝" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Purple" ToolTip="紫色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="White" ToolTip="白色"  Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="LightGray" ToolTip="浅灰"  Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Brown" ToolTip="棕色"  Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Pink"  ToolTip="粉色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Gold" ToolTip="金色" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="LightYellow" ToolTip="浅黄"  Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Lime" ToolTip="柠檬" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="LightSkyBlue" ToolTip="浅蓝" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="SteelBlue" ToolTip="钢青" Style="{DynamicResource ColorButtonStyle}"/>
+                                    <Button Width="20" Height="20" Margin="2" Background="Lavender" ToolTip="浅紫" Style="{DynamicResource ColorButtonStyle}"/>
                                 </WrapPanel>
 
                             </DockPanel>

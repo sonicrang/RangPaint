@@ -9,11 +9,20 @@ namespace RangPaint.Model
     public enum ModeEnum
     {
         None,
-        Select,
-        ColorPicker,
+        Select,   
         Pen,
         Eraser,
-        Draw,
+        Draw
+    }
+
+    public enum ColorPickerModeEnum
+    {
+        True,
+        False
+    }
+
+    public enum ColorModeEnum
+    {
         Foreground,
         Background
     }

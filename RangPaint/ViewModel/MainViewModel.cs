@@ -34,7 +34,9 @@ namespace RangPaint.ViewModel
 
         private bool isDraw;                         // is drawing stroke
 
-        private ModeEnum curMode;                    // current mode
+        private ModeEnum curOperationMode;
+        private ColorModeEnum curColorMode;
+        private ColorPickerModeEnum curColorPickerMode;
 
         private Brush foreground;
 
@@ -195,6 +197,8 @@ namespace RangPaint.ViewModel
             PenWidthIndex = 0;
             Foreground = Brushes.Black;
             Background = Brushes.White;
+            curColorMode = ColorModeEnum.Foreground;
+            curColorPickerMode = ColorPickerModeEnum.False;
 
             PenMode();
         }
@@ -271,7 +275,7 @@ namespace RangPaint.ViewModel
         public void RecSelectMode()
         {
             curDraw = null;
-            curMode = ModeEnum.Select;
+            curOperationMode = ModeEnum.Select;
             inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
 
@@ -283,63 +287,63 @@ namespace RangPaint.ViewModel
         public void PenMode()
         {
             curDraw = null;
-            curMode = ModeEnum.Pen;
+            curOperationMode = ModeEnum.Pen;
             inkCanvas.EditingMode = InkCanvasEditingMode.Ink;
         }
 
         public void BrushMode()
         {
-            curMode = ModeEnum.Draw;
+            curOperationMode = ModeEnum.Draw;
             curDraw = new DrawBrush();
         }
 
         public void EraseByStrokeMode()
         {
             curDraw = null;
-            curMode = ModeEnum.Eraser;
+            curOperationMode = ModeEnum.Eraser;
             inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
         }
 
         public void ColorPickerMode()
         {
-            curDraw = null;
-            curMode = ModeEnum.ColorPicker;
+            //curDraw = null;
+            curColorPickerMode = ColorPickerModeEnum.True;
             inkCanvas.EditingMode = InkCanvasEditingMode.None;
         }
 
         public void DrawLine()
         {
-            curMode = ModeEnum.Draw;
+            curOperationMode = ModeEnum.Draw;
             curDraw = new DrawLine();
         }
 
         public void DrawEllipse()
         {
-            curMode = ModeEnum.Draw;
+            curOperationMode = ModeEnum.Draw;
             curDraw = new DrawEllipse();
         }
         public void DrawRectangle()
         {
-            curMode = ModeEnum.Draw;
+            curOperationMode = ModeEnum.Draw;
             curDraw = new DrawRectangle();
         }
 
         public void DrawTriangle()
         {
-            curMode = ModeEnum.Draw;
+            curOperationMode = ModeEnum.Draw;
             curDraw = new DrawRectangle();
         }
 
         public void ForegroundMode()
         {
             curDraw = null;
-            curMode = ModeEnum.Foreground;
+            curColorMode = ColorModeEnum.Foreground;
         }
 
         public void BackgroundMode()
         {
             curDraw = null;
-            curMode = ModeEnum.Background;
+            curColorMode = ColorModeEnum.Background;
         }
 
 
@@ -348,11 +352,11 @@ namespace RangPaint.ViewModel
             if (e.Source is Button)
             {
                 Button btn = e.Source as Button;
-                if (curMode == ModeEnum.Foreground)
+                if (curColorMode == ColorModeEnum.Foreground)
                 {
                     Foreground = btn.Background;
                 }
-                else if (curMode == ModeEnum.Background)
+                else if (curColorMode == ColorModeEnum.Background)
                 {
                     Background = btn.Background;
                 }
@@ -442,7 +446,23 @@ namespace RangPaint.ViewModel
                 }
             }
 
-            switch (curMode)
+            if (curColorPickerMode == ColorPickerModeEnum.True)
+            {
+                curColorPickerMode = ColorPickerModeEnum.False;
+
+                Mouse.OverrideCursor = Cursors.Arrow;
+                POINT p;
+                GetCursorPos(out p);
+                IntPtr hdc = GetDC(IntPtr.Zero);
+                int c = GetPixel(hdc, p.X, p.Y);
+                byte r = (byte)(c & 0xFF);
+                byte g = (byte)((c & 0xFF00) >> 8);
+                byte b = (byte)((c & 0xFF0000) >> 16);
+                // set color
+
+            }
+
+            switch (curOperationMode)
             {
                 case ModeEnum.Draw:
                     if (curDraw != null)
@@ -463,22 +483,9 @@ namespace RangPaint.ViewModel
                         }
                     }
                     break;
-
-                case ModeEnum.ColorPicker:
-
-                    Mouse.OverrideCursor = Cursors.Arrow;
-                    POINT p;
-                    GetCursorPos(out p);
-                    IntPtr hdc = GetDC(IntPtr.Zero);
-                    int c = GetPixel(hdc, p.X, p.Y);
-                    byte r = (byte)(c & 0xFF);
-                    byte g = (byte)((c & 0xFF00) >> 8);
-                    byte b = (byte)((c & 0xFF0000) >> 16);
-                    // set color
-
-                    PenMode();
-                    break;
             }
+
+            
         }
         private void CanvasMouseMove(object sender, MouseEventArgs e)
         {
@@ -518,7 +525,7 @@ namespace RangPaint.ViewModel
                 }
             }
 
-            if (curMode == ModeEnum.ColorPicker)
+            if (curColorPickerMode == ColorPickerModeEnum.True)
             {
                 StreamResourceInfo sri = Application.GetResourceStream(new Uri("/RangPaint;component/Images/color_cursor.cur", UriKind.Relative));
                 Cursor customCursor = new Cursor(sri.Stream);
@@ -530,7 +537,7 @@ namespace RangPaint.ViewModel
         {
             MouseLocationText = "";
 
-            if (curMode == ModeEnum.ColorPicker)
+            if (curColorPickerMode == ColorPickerModeEnum.True)
             {
                 Mouse.OverrideCursor = Cursors.Arrow;
             }
