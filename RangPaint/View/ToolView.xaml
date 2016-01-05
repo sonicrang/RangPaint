@@ -215,7 +215,7 @@
                                         </i:Interaction.Triggers>
                                         <StackPanel Orientation="Horizontal" >
                                             <Image Width="18" Source="/RangPaint;component/Images/resize.png" />
-                                            <TextBlock Text="重新调整大小" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0"/>
+                                            <TextBlock Text="画布大小" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="3,0"/>
                                         </StackPanel>
                                     </Button>
                                     <Button Background="{x:Null}" BorderBrush="{x:Null}" HorizontalAlignment="Left">

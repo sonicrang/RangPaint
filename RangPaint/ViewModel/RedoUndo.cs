@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RangPaint.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -309,6 +310,78 @@ namespace RangPaint.ViewModel
 
             for (int i = 0; i < a.Count; ++i)
                 if (a[i] != b[i]) return false;
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// This operation covers new color or width operations.
+    /// </summary>
+    class SelectionColorOrWidthCI : CommandItem
+    {
+        StrokeCollection _selection;
+        Brush _old_foreground, _new_foreground, _old_background, _new_background;
+        int _old_width, _new_width;
+        int _editingOperationCount;
+
+        public SelectionColorOrWidthCI(DoCommandStack commandStack, StrokeCollection selection,
+            Brush old_foreground, Brush new_foreground, Brush old_background, Brush new_background,
+            int old_width, int new_width, int editingOperationCount)
+            : base(commandStack)
+        {
+            _selection = selection;
+            _old_foreground = old_foreground;
+            _new_foreground = new_foreground;
+            _old_background = old_background;
+            _new_background = new_background;
+            _old_width = old_width;
+            _new_width = new_width;
+
+            _editingOperationCount = editingOperationCount;
+        }
+
+        public override void Undo()
+        {
+            foreach (var stroke in _selection)
+            {
+                var attr = stroke.DrawingAttributes;
+                attr.Color = ((SolidColorBrush)_old_foreground).Color;
+                attr.AddPropertyData(DrawAttributesGuid.BackgroundColor, _old_background.ToString());
+                attr.Width = _old_width;
+                stroke.DrawingAttributes = attr;
+            }
+        }
+
+        public override void Redo()
+        {
+            foreach (var stroke in _selection)
+            {
+                var attr = stroke.DrawingAttributes;
+                attr.Color = ((SolidColorBrush)_new_foreground).Color;
+                attr.AddPropertyData(DrawAttributesGuid.BackgroundColor, _new_background.ToString());
+                attr.Width = _new_width;
+                stroke.DrawingAttributes = attr;
+            }
+        }
+
+        public override bool Merge(CommandItem newitem)
+        {
+            SelectionColorOrWidthCI newitemx = newitem as SelectionColorOrWidthCI;
+
+            // Ensure items are of the same type.
+            if (newitemx == null ||
+                newitemx._editingOperationCount != _editingOperationCount)
+            {
+                return false;
+            }
+
+            _old_foreground = newitemx._old_foreground;
+            _new_foreground = newitemx._new_foreground;
+            _old_background = newitemx._old_background;
+            _new_background = newitemx._new_background;
+            _old_width = newitemx._old_width;
+            _new_width = newitemx._new_width;
 
             return true;
         }

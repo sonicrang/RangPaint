@@ -45,6 +45,7 @@ namespace RangPaint.ViewModel
             get { return foreground; }
             set
             {
+                var old_foreground = foreground;
 
                 foreground = value;
                 var color = ((SolidColorBrush)foreground).Color;
@@ -57,6 +58,11 @@ namespace RangPaint.ViewModel
                     {
                         stroke.DrawingAttributes.Color = color;
                     }
+
+                    editingOperationCount++;
+                    CommandItem item = new SelectionColorOrWidthCI(doCmdStack, lstStrokes, old_foreground, foreground,
+                        Background, Background, StrokeWidth, StrokeWidth, editingOperationCount);
+                    doCmdStack.Enqueue(item);
                 }
                 OnPropertyChanged("Foreground");
             }
@@ -69,6 +75,8 @@ namespace RangPaint.ViewModel
             get { return background; }
             set
             {
+                var old_background = background;
+
                 background = value;
 
                 inkCanvas.DefaultDrawingAttributes.AddPropertyData(DrawAttributesGuid.BackgroundColor, background.ToString());
@@ -85,6 +93,10 @@ namespace RangPaint.ViewModel
 
                         stroke.DrawingAttributes = attr;
                     }
+                    editingOperationCount++;
+                    CommandItem item = new SelectionColorOrWidthCI(doCmdStack, lstStrokes, Foreground, Foreground,
+                       old_background, background, StrokeWidth, StrokeWidth, editingOperationCount);
+                    doCmdStack.Enqueue(item);
                 }
                 OnPropertyChanged("Background");
             }
@@ -98,7 +110,7 @@ namespace RangPaint.ViewModel
             set
             {
                 selectColor = value;
-                if(curColorMode == ColorModeEnum.Background)
+                if (curColorMode == ColorModeEnum.Background)
                 {
                     Background = new SolidColorBrush(selectColor);
                 }
@@ -109,7 +121,7 @@ namespace RangPaint.ViewModel
                 OnPropertyChanged("SelectColor");
             }
         }
-        
+
 
 
         private int penWidthIndex;
@@ -119,9 +131,11 @@ namespace RangPaint.ViewModel
             get { return penWidthIndex; }
             set
             {
+                var old_strokewidth = StrokeWidth;
+
                 penWidthIndex = value;
-                var width = (penWidthIndex + 1) * 2;
-                inkCanvas.DefaultDrawingAttributes.Height = inkCanvas.DefaultDrawingAttributes.Width = width;
+
+                inkCanvas.DefaultDrawingAttributes.Height = inkCanvas.DefaultDrawingAttributes.Width = StrokeWidth;
 
                 var lstStrokes = inkCanvas.GetSelectedStrokes();
 
@@ -129,13 +143,24 @@ namespace RangPaint.ViewModel
                 {
                     foreach (var stroke in lstStrokes)
                     {
-                        stroke.DrawingAttributes.Height = stroke.DrawingAttributes.Width = width;
+                        stroke.DrawingAttributes.Height = stroke.DrawingAttributes.Width = StrokeWidth;
                     }
+                    editingOperationCount++;
+                    CommandItem item = new SelectionColorOrWidthCI(doCmdStack, lstStrokes, Foreground, Foreground,
+                      Background, Background, old_strokewidth, StrokeWidth, editingOperationCount);
+                    doCmdStack.Enqueue(item);
                 }
 
                 OnPropertyChanged("PenWidthIndex");
             }
         }
+
+
+        private int StrokeWidth
+        {
+            get { return (penWidthIndex + 1) * 2; }
+        }
+
 
         private string mouseLocationText;            //show mouse location
 
@@ -232,9 +257,9 @@ namespace RangPaint.ViewModel
             PenWidthIndex = 0;
             Foreground = Brushes.Black;
             Background = Brushes.White;
-            SelectColor = Colors.White;
             curColorMode = ColorModeEnum.Foreground;
             curColorPickerMode = ColorPickerModeEnum.False;
+            SelectColor = Colors.Black;
 
             PenMode();
         }
@@ -246,7 +271,6 @@ namespace RangPaint.ViewModel
             var lstStokes = inkCanvas.GetSelectedStrokes();
             if (lstStokes.Count > 0)
             {
-                editingOperationCount++;
                 Strokes_Removed(lstStokes);
                 inkCanvas.Strokes.Remove(lstStokes);
             }
@@ -256,7 +280,6 @@ namespace RangPaint.ViewModel
             var lstStokes = inkCanvas.GetSelectedStrokes();
             if (lstStokes.Count > 0)
             {
-                editingOperationCount++;
                 lstStrokeClipBoard.Clear();
                 lstStrokeClipBoard.Add(lstStokes);
                 Strokes_Removed(lstStokes);
@@ -269,7 +292,6 @@ namespace RangPaint.ViewModel
             var lstStokes = inkCanvas.GetSelectedStrokes();
             if (lstStokes.Count > 0)
             {
-                editingOperationCount++;
                 lstStrokeClipBoard.Clear();
                 lstStrokeClipBoard.Add(lstStokes);
             }
@@ -280,7 +302,6 @@ namespace RangPaint.ViewModel
         {
             if (lstStrokeClipBoard.Count > 0)
             {
-                editingOperationCount++;
                 var newLstStrokes = lstStrokeClipBoard.Clone();
                 Strokes_Added(newLstStrokes);
                 inkCanvas.Strokes.Add(newLstStrokes);
@@ -441,12 +462,14 @@ namespace RangPaint.ViewModel
         }
         private void Strokes_Added(StrokeCollection lstAdded)
         {
+            editingOperationCount++;
             CommandItem item = new StrokesAddedOrRemovedCI(doCmdStack, inkCanvas.EditingMode, lstAdded, new StrokeCollection(), editingOperationCount);
             doCmdStack.Enqueue(item);
         }
 
         private void Strokes_Removed(StrokeCollection lstRemoved)
         {
+            editingOperationCount++;
             CommandItem item = new StrokesAddedOrRemovedCI(doCmdStack, inkCanvas.EditingMode, new StrokeCollection(), lstRemoved, editingOperationCount);
             doCmdStack.Enqueue(item);
         }
@@ -470,6 +493,9 @@ namespace RangPaint.ViewModel
 
                 e.NewRectangle = newRect2;
             }
+
+            FieldSizeText = (int)newRect.Width + "," + (int)newRect.Height + " 像素";
+            editingOperationCount++;
             CommandItem item = new SelectionMovedOrResizedCI(doCmdStack, inkCanvas.GetSelectedStrokes(), newRect, oldRect, editingOperationCount);
             doCmdStack.Enqueue(item);
         }
@@ -560,11 +586,6 @@ namespace RangPaint.ViewModel
                 }
                 else
                 {
-                    if (inkCanvas.GetSelectedStrokes().Count > 0)
-                    {
-                        Rect rect = inkCanvas.GetSelectedStrokes().GetBounds();
-                        FieldSizeText = (int)rect.Width + "," + (int)rect.Height + " 像素";
-                    }
                     isDraw = false;
                 }
             }
@@ -592,7 +613,6 @@ namespace RangPaint.ViewModel
             {
                 if (curDraw.StrokeResult != null)
                 {
-                    editingOperationCount++;
                     var lstStrokes = new StrokeCollection() { curDraw.StrokeResult };
                     inkCanvas.Select(lstStrokes);
                     Strokes_Added(lstStrokes);
@@ -602,7 +622,6 @@ namespace RangPaint.ViewModel
             }
             else if (inkCanvas.EditingMode == InkCanvasEditingMode.Ink)
             {
-                editingOperationCount++;
                 Strokes_Added(new StrokeCollection() { inkCanvas.Strokes[inkCanvas.Strokes.Count - 1] });
             }
 
