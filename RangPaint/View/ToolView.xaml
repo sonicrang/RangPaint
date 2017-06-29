@@ -455,9 +455,9 @@
                     </Border>
                 </StackPanel>
             </TabItem>
-            <TabItem Header="查看">
+            <!--<TabItem Header="查看">
                 <Grid Background="#FFE5E5E5"/>
-            </TabItem>
+            </TabItem>-->
         </TabControl>
 
     </Grid>
